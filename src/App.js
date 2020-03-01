@@ -1,21 +1,30 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import ImageUploader from 'react-images-upload';
  
 const   App = () =>  {
+    const ImageUploaderRef = useRef();
+    // let [pictures,setPictures] = useState([]);
     let [pictures,setPictures] = useState([]);
-    console.log("REnder Component",pictures )
+    console.log("REnder Component",pictures );
+    console.log("ImageUploaderRef => ",ImageUploaderRef );
 
     const onDrop = (picture) =>  {
       console.log( ' OnDrop ==> ', pictures);
       setPictures(picture);
       console.log( ' OnDrop setPictures ==> ', pictures);
-
+      if (picture.length >= 6) {
+        setPictures([]);
+        ImageUploaderRef.current.state.pictures = [];
+        ImageUploaderRef.current.state.files = [];
+        ImageUploaderRef.current.state.fileErrors[0] = {name: "many_files.jpg" , type: "Maximum Select picture are 6 pictures"};
+      }
     }
 
     const removeImage = (index) => {
       console.log(" Delete ", index);
       console.log(" pictures ", pictures);
       setPictures(pictures.filter((value, i)=> { return i !== index;}));
+      ImageUploaderRef.current.state.pictures = ImageUploaderRef.current.state.pictures.filter((value, i)=> { return i !== index;});
     }
  
 
@@ -23,6 +32,7 @@ const   App = () =>  {
           <>
           {pictures.length < 6 ?
           (<ImageUploader
+                ref= {ImageUploaderRef}
                 withIcon={true}
                 withPreview= {true}
                 withLabel= {true}
