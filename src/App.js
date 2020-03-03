@@ -46,7 +46,13 @@ const App = () => {
 
     let data = new FormData();
     data.append("file", file);
-    data.append("name", file.name);
+    data.append(
+      "name",
+      file.name
+        .split(".")
+        .slice(0, -1)
+        .join(".")
+    );
     console.log(" FormData ==> ", data);
 
     axios
@@ -67,7 +73,8 @@ const App = () => {
   const onClickHandler = () => {
     const data = new FormData();
     data.append("file", selectedFile);
-    data.append("name", selectedFile.name);
+    // data.append("name", selectedFile.name);
+    data.append("name", "test");
     console.log(" selectedFile ", selectedFile);
     axios
       .post(process.env.REACT_APP_API_ENDPOINT, data, {
@@ -80,38 +87,68 @@ const App = () => {
   };
   return (
     <>
-      <input type="file" className="file" onChange={onChangeHandler} />
-      <button
-        type="button"
-        className="btn btn-success btn-block"
-        onClick={onClickHandler}
-      >
-        Upload
-      </button>
+      <input
+        type="file"
+        className="file"
+        accept="image/*"
+        onChange={onChangeHandler}
+      />
+      {selectedFile ? (
+        <button
+          type="button"
+          className="btn btn-success btn-block"
+          onClick={onClickHandler}
+        >
+          Upload
+        </button>
+      ) : null}
+      {selectedFile ? (
+        <div key={`container$`} id={`container`}>
+          <button
+            key={`delete`}
+            id={`delete`}
+            onClick={() => {
+              setSelectedFile(null);
+            }}
+          >
+            X Delete
+          </button>
+          <img
+            src={URL.createObjectURL(selectedFile)}
+            key={`img`}
+            alt={selectedFile.name}
+          />
+        </div>
+      ) : null}
+      <hr></hr>
 
-      <button onClick={() => upload(ImageUploaderRef.current.state.files[0])}>
-        Send to Server
-      </button>
-      {process.env.REACT_APP_API_ENDPOINT}
+      {/* {process.env.REACT_APP_API_ENDPOINT} */}
       {pictures.length < 6 ? (
         <ImageUploader
           ref={ImageUploaderRef}
+          errorClass="Only 6 images can be uploaded at a time"
           singleImage={true}
           withIcon={true}
           withPreview={true}
+          errorStyle={{ fontSize: "30px" }}
           withLabel={true}
-          label={"Max file size: 5mb, accepted: jpg | gif | png"}
-          accept="image/png, image/jpeg, , image/png"
+          label={"Max file size: 5 MB"}
+          accept="image/*"
           buttonText="Choose images"
           onChange={onDrop}
-          imgExtension={[".jpg", ".gif", ".png"]}
+          // imgExtension={[".jpg", ".gif", ".png"]}
           maxFileSize={5242880}
         />
       ) : (
         "Only 6 images can be uploaded at a time"
       )}
+      {pictures.length ? (
+        <button onClick={() => upload(ImageUploaderRef.current.state.files[0])}>
+          Send to Server
+        </button>
+      ) : null}
       {/* {console.log(pictures ) } */}
-      {pictures.map((picture, i) => (
+      {/* {pictures.map((picture, i) => (
         <div key={`container${i}`} id={`container${i}`}>
           <button
             key={`delete${i}`}
@@ -129,7 +166,7 @@ const App = () => {
             width="400"
           />
         </div>
-      ))}
+      ))} */}
     </>
   );
 };
